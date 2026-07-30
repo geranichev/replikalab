@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Replika Lab — 3D-сканирование, моделирование и печать, Липецк</title>
+<meta name="description" content="Студия Replika Lab в Липецке: 3D-сканирование деталей, инженерное моделирование, FDM-печать прототипов и запчастей. Самовывоз или доставка курьером.">
+<link rel="canonical" href="https://replikalab.ru/">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#101010">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Replika Lab">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="https://replikalab.ru/">
+<meta property="og:title" content="Replika Lab — 3D-сканирование, моделирование и печать, Липецк">
+<meta property="og:description" content="Студия Replika Lab в Липецке: 3D-сканирование деталей, инженерное моделирование, FDM-печать прототипов и запчастей. Самовывоз или доставка курьером.">
+<meta property="og:image" content="https://replikalab.ru/assets/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Replika Lab — 3D scan, design, print">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Replika Lab — 3D-сканирование, моделирование и печать, Липецк">
+<meta name="twitter:description" content="Студия Replika Lab в Липецке: 3D-сканирование деталей, инженерное моделирование, FDM-печать прототипов и запчастей. Самовывоз или доставка курьером.">
+<meta name="twitter:image" content="https://replikalab.ru/assets/og-cover.jpg">
+
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/Inter/Inter-VariableFont_opsz,wght.ttf" as="font" type="font/ttf" crossorigin>
+<style>
+@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;
+  src:url('assets/fonts/Inter/Inter-VariableFont_opsz,wght.ttf') format('truetype-variations')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:swap;
+  src:url('assets/fonts/JetBrains_Mono/JetBrainsMono-VariableFont_wght.ttf') format('truetype-variations')}
+</style>
+<script>document.documentElement.className+=' js';</script>
+<style>
+:root{
+  --canvas:#101010; --lift:#1d1a18; --stroke:#3d3a39; --graphite:#4d4947;
+  --granite:#8a8380; --stone:#b8b3b0; --bone:#eeeeee; --chalk:#fafafa;
+  --orange:#ee6018; --green:#a0ca92; --laser:#3b6bff;
+  --font:'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --max:1200px; --gap:120px; --r-sm:3px; --r-lg:10px; --r-xl:20px;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--canvas); color:var(--bone); font-family:var(--font);
+  font-weight:400; font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none;transition:color .18s var(--ease),border-color .18s var(--ease)}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.eyebrow{display:flex;align-items:center;gap:8px;color:var(--stone);margin-bottom:24px}
+.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--orange);flex:none}
+h1,h2,h3{font-weight:400;line-height:1.05}
+h2{font-size:clamp(30px,4.2vw,48px);letter-spacing:-.028em;margin-bottom:16px}
+h3{font-size:20px;letter-spacing:-.02em}
+.lead{color:var(--granite);font-size:17px;max-width:62ch}
+section{padding:var(--gap) 0;position:relative}
+.hr{height:1px;background:var(--stroke);opacity:.5}
+
+/* ---------- NAV ---------- */
+header{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .25s var(--ease),border-color .25s var(--ease);border-bottom:1px solid transparent}
+header.solid{background:rgba(16,16,16,.86);backdrop-filter:blur(14px);border-bottom-color:var(--lift)}
+.nav{height:66px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+/* лок-ап: цельная надпись поверх шестерёнки, под ней размытая подложка */
+.brand{display:inline-flex;align-items:center;text-decoration:none;color:inherit}
+.brand .mark{position:relative;flex:none;width:38px;height:38px}
+.brand .mark svg{display:block;width:100%;height:100%}
+.brand .word{position:relative;z-index:1;font-family:var(--mono);font-size:13px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;line-height:1;white-space:nowrap;color:var(--bone);
+  padding:8px 12px;margin-left:-33px}
+.brand .word::before{content:"";position:absolute;left:0;right:0;top:50%;height:25px;
+  transform:translateY(-50%);z-index:-1;border-radius:999px;
+  background:linear-gradient(90deg,rgba(16,16,16,.42) 0%,rgba(16,16,16,.28) 44%,rgba(16,16,16,0) 82%);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 50%,transparent 84%);
+          mask-image:linear-gradient(90deg,#000 0%,#000 50%,transparent 84%)}
+.nav ul{display:flex;gap:28px;list-style:none;align-items:center}
+.nav ul a{font-size:13px;color:var(--stone);text-transform:uppercase;letter-spacing:.05em}
+.nav ul a{position:relative;display:inline-flex;align-items:center;min-height:44px;padding:0 2px}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:11px;height:1px;
+  background:var(--bone);transform:scaleX(0);transform-origin:left;
+  transition:transform .2s var(--ease)}
+.nav ul a:hover,.nav ul a.active{color:var(--chalk)}
+.nav ul a:hover::after,.nav ul a.active::after{transform:scaleX(1)}
+.btn{font-family:inherit;background:transparent;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;line-height:1;height:44px;padding:0 18px;border-radius:var(--r-sm);border:1px solid transparent;cursor:pointer;transition:all .18s var(--ease);white-space:nowrap}
+.btn-accent{background:var(--orange);color:#101010;font-weight:500}
+.btn-accent:hover{background:#ff7028}
+.btn-dark{background:var(--lift);color:var(--bone)}
+.btn-dark:hover{background:#2a2624}
+.btn-ghost{border-color:var(--stroke);color:var(--bone)}
+.btn-ghost:hover{border-color:var(--chalk);color:var(--chalk)}
+.nav-actions{display:flex;gap:10px;align-items:center;
+  opacity:0;visibility:hidden;transform:translateY(-6px);pointer-events:none;
+  transition:opacity .28s var(--ease),transform .28s var(--ease),visibility .28s var(--ease)}
+.nav-actions.show{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.nav-actions>*{height:38px;min-height:38px;padding-top:0;padding-bottom:0;
+  display:inline-flex;align-items:center;justify-content:center;font-size:13px;line-height:1;padding-left:16px;padding-right:16px}
+
+/* ---------- HERO ---------- */
+.hero{min-height:100svh;display:grid;place-items:center;text-align:center;padding:140px 0 100px;overflow:hidden}
+.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.4}
+.hero .veil{position:absolute;inset:0;background:
+  radial-gradient(ellipse 70% 60% at 50% 45%,rgba(16,16,16,.35) 0%,rgba(16,16,16,.9) 70%,#101010 100%),
+  linear-gradient(180deg,#101010 0%,transparent 22%,transparent 62%,#101010 100%)}
+.hero .grid-bg{position:absolute;inset:0;opacity:.35;
+  background-image:linear-gradient(var(--lift) 1px,transparent 1px),linear-gradient(90deg,var(--lift) 1px,transparent 1px);
+  background-size:64px 64px;
+  -webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 50%,#000 20%,transparent 78%);
+          mask-image:radial-gradient(ellipse 60% 55% at 50% 50%,#000 20%,transparent 78%)}
+.hero-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+.hero-cta{display:flex;align-items:center;gap:28px;margin-top:44px;flex-wrap:wrap;
+  justify-content:center;animation:fadeUp .7s .34s var(--ease) both}
+.btn-lg{height:52px;padding:0 30px;font-size:15px}
+.hero-link{font-size:15px;color:var(--stone);border-bottom:1px solid var(--stroke);padding-bottom:3px}
+.hero-link:hover{color:var(--chalk);border-bottom-color:var(--chalk)}
+.scroll-note{display:inline-flex;flex-direction:column;align-items:center;gap:8px;
+  margin-top:56px;color:var(--granite);font-size:12px;letter-spacing:.16em;
+  animation:fadeUp .7s .46s var(--ease) both}
+.scroll-note svg{width:18px;height:18px;color:var(--orange);
+  animation:nudge 2.4s cubic-bezier(.33,0,.2,1) infinite}
+@keyframes nudge{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(6px);opacity:1}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--stone);
+  border:1px solid var(--stroke);border-radius:999px;padding:8px 16px;margin-bottom:32px;
+  letter-spacing:.14em;animation:fadeUp .7s var(--ease) both}
+.hero-eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--orange);display:block;animation:pulse 2s infinite}
+.gear-spin{transform-origin:250px 250px;animation:spin 26s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.gear-spin{animation:none}}
+.hero h1{font-size:clamp(34px,6.4vw,72px);letter-spacing:-.04em;max-width:16ch;animation:fadeUp .7s .12s var(--ease) both}
+.hero h1 em{font-style:normal;color:var(--orange)}
+.hero .lead{margin:24px auto 0;text-align:center;animation:fadeUp .7s .22s var(--ease) both}
+.hero-cta{display:flex;gap:12px;margin-top:40px;flex-wrap:wrap;justify-content:center;animation:fadeUp .7s .32s var(--ease) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* ---------- SERVICES ---------- */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+.card{border:1px solid var(--lift);border-radius:var(--r-lg);padding:24px;display:flex;flex-direction:column;gap:16px;transition:border-color .2s var(--ease),background .2s var(--ease)}
+.card:hover{border-color:var(--stroke);background:#141313}
+.card .ico{width:56px;height:56px}
+.card p{color:var(--granite);font-size:15px;flex:1}
+.price{display:flex;align-items:baseline;gap:10px;margin-top:-4px}
+.price b{font-size:26px;font-weight:500;letter-spacing:-.03em;color:var(--bone);line-height:1}
+.price span{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--granite)}
+.card ul{list-style:none;display:flex;flex-direction:column;gap:8px;padding-top:16px;border-top:1px solid var(--lift)}
+.card li{color:var(--stone);font-size:13px;display:flex;gap:10px;align-items:flex-start}
+.card li::before{content:"—";color:var(--granite);flex:none}
+.tag{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--orange);border:1px solid rgba(238,96,24,.4);border-radius:999px;padding:3px 10px;align-self:flex-start}
+
+/* ---------- MATERIALS ---------- */
+.price-note{color:var(--granite);font-size:14px;margin-top:24px;max-width:70ch}
+.mats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px}
+.mat{border:1px solid var(--lift);border-radius:var(--r-lg);padding:20px;transition:border-color .2s var(--ease)}
+.mat:hover{border-color:var(--stroke)}
+.mat b{display:block;font-weight:500;font-size:16px}
+.mat p{color:var(--granite);font-size:13px;margin-top:8px}
+
+/* ---------- CASES ---------- */
+.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+.case{border:1px solid var(--lift);border-radius:var(--r-lg);overflow:hidden;background:#0d0d0d}
+.case .vis{aspect-ratio:4/3;position:relative;overflow:hidden;background:radial-gradient(circle at 60% 40%,#17181d,#0a0a0b)}
+.case .vis img,.case .vis picture{width:100%;height:100%;object-fit:cover;display:block}
+.case .body{padding:20px}
+.case .body p{color:var(--granite);font-size:14px;margin-top:8px}
+.case .meta{display:flex;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--lift);font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--stone)}
+
+/* ---------- КОНТАКТЫ ---------- */
+.contacts{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.contact{display:flex;align-items:center;gap:16px;border:1px solid var(--lift);
+  border-radius:var(--r-lg);padding:18px 20px;
+  transition:border-color .2s var(--ease),background .2s var(--ease)}
+.contact:hover{border-color:var(--orange);background:#141313}
+.contact .ci{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  background:var(--lift);color:var(--stone);
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.contact:hover .ci{background:var(--orange);color:#101010}
+.contact .ci svg{width:22px;height:22px}
+.contact .ci-max::after{content:"";display:block;width:24px;height:24px;background:currentColor;
+  -webkit-mask:url(assets/max-mask.png) center/contain no-repeat;
+          mask:url(assets/max-mask.png) center/contain no-repeat}
+.contact .ct{display:flex;flex-direction:column;gap:6px;min-width:0}
+.contact .l{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--stone)}
+.contact .v{font-size:17px}
+.contact .note{font-size:12px;color:var(--granite);line-height:1.35}
+.contact-plain{cursor:default}
+.contact-plain:hover{border-color:var(--lift);background:none}
+.contact-plain:hover .ci{background:var(--lift);color:var(--stone)}
+
+/* ---------- FAQ ---------- */
+.faq{margin-top:48px;border-top:1px solid var(--lift)}
+details{border-bottom:1px solid var(--lift)}
+summary{list-style:none;cursor:pointer;padding:24px 0;display:flex;justify-content:space-between;gap:24px;align-items:center;font-size:17px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--granite);font-size:22px;line-height:1;transition:transform .2s var(--ease)}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--granite);padding-bottom:24px;max-width:80ch}
+
+/* ---------- FOOTER ---------- */
+footer{padding:80px 0 40px;border-top:1px solid var(--lift)}
+.fcols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
+.fcols h4{font-family:var(--mono);font-size:12px;font-weight:400;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
+.fcols ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.fcols a{color:var(--granite);font-size:14px}
+.fcols li{color:var(--granite);font-size:14px}
+.fcols a:hover{color:var(--bone)}
+.fbrand p{color:var(--granite);font-size:14px;max-width:34ch;margin-top:16px}
+.fbot{display:flex;justify-content:space-between;gap:24px;margin-top:56px;padding-top:24px;border-top:1px solid var(--lift);color:var(--granite);flex-wrap:wrap}
+
+/* ---------- СПОЙЛЕРЫ ---------- */
+#services,#materials,#cases{padding:0}
+#services{padding-top:120px}
+#cases{padding-bottom:96px}
+.spoiler{border-top:1px solid var(--lift)}
+#cases .spoiler{border-bottom:1px solid var(--lift)}
+.spoiler summary{list-style:none;cursor:pointer;padding:34px 0;display:flex;align-items:center;
+  justify-content:space-between;gap:24px}
+.spoiler summary::-webkit-details-marker{display:none}
+.s-eyebrow{display:flex;align-items:center;gap:10px;color:var(--stone);font-size:13px;
+  letter-spacing:.1em;transition:color .18s var(--ease)}
+.s-eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--orange);flex:none}
+.spoiler summary:hover .s-eyebrow{color:var(--bone)}
+.spoiler summary::after{content:"";width:10px;height:10px;border-right:1px solid var(--granite);
+  border-bottom:1px solid var(--granite);transform:rotate(45deg) translate(-2px,-2px);
+  transition:transform .22s var(--ease);flex:none}
+.spoiler[open] summary::after{transform:rotate(225deg) translate(-2px,-2px)}
+.spoiler[open] .s-eyebrow{color:var(--bone)}
+.spoiler-body{padding-bottom:88px;animation:spoilerIn .32s var(--ease) both}
+.spoiler-body>h2{margin-bottom:16px}
+.spoiler-body>.lead{margin-bottom:8px}
+@keyframes spoilerIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.spoiler-body>.cards,.spoiler-body>.mats,.spoiler-body>.cases{margin-top:40px}
+
+/* ---------- ДОСТУПНОСТЬ ---------- */
+.skip{position:absolute;left:16px;top:-60px;z-index:100;background:var(--orange);color:#101010;
+  font-size:14px;font-weight:500;padding:12px 18px;border-radius:var(--r-sm);
+  transition:top .18s var(--ease)}
+.skip:focus{top:16px}
+:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:2px}
+.btn:focus-visible{outline-offset:4px}
+.contact:focus-visible,.spoiler summary:focus-visible{outline-offset:6px}
+
+/* ---------- BACK TO TOP ---------- */
+.totop{position:fixed;right:24px;bottom:24px;z-index:60;width:48px;height:48px;
+  display:grid;place-items:center;background:var(--lift);color:var(--bone);
+  border:1px solid var(--stroke);border-radius:var(--r-sm);cursor:pointer;
+  opacity:0;visibility:hidden;transform:translateY(12px);
+  transition:opacity .22s var(--ease),transform .22s var(--ease),visibility .22s var(--ease),
+             background .18s var(--ease),border-color .18s var(--ease),color .18s var(--ease)}
+.totop.show{opacity:1;visibility:visible;transform:none}
+.totop:hover{background:var(--orange);border-color:var(--orange);color:#101010}
+.totop svg{width:18px;height:18px}
+@media(max-width:660px){.totop{right:16px;bottom:16px;width:44px;height:44px}}
+
+/* ---------- REVEAL ---------- */
+html.js .rv{opacity:0;transform:translateY(22px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+html.js .rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html.js .rv{opacity:1;transform:none}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:1000px){
+  :root{--gap:88px}
+  .cards,.cases,.mats,.contacts{grid-template-columns:1fr 1fr}
+    .step:nth-child(2n){border-right:0}
+  .split{grid-template-columns:1fr;gap:40px}
+  .fcols{grid-template-columns:1fr 1fr}
+}
+@media(max-width:660px){
+  :root{--gap:72px}
+  .nav{height:auto;flex-wrap:wrap;justify-content:space-between;padding:12px 0;gap:12px}
+  .nav ul{order:3;width:100%;justify-content:center;gap:20px;flex-wrap:wrap}
+  .nav ul a{font-size:12px}
+  .cards,.cases,.mats,.contacts{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header id="hdr">
+  <div class="wrap nav" id="nav">
+    <a class="brand" href="#top">
+      <span class="mark"><svg viewBox="0 0 500 500" aria-hidden="true"><circle cx="250" cy="250" r="248" fill="#0d0c0b"/><g class="gear-spin"><polygon fill="#c1621f" stroke="#ee6018" stroke-width="8" stroke-linejoin="round" points="485.0,250.0 481.9,287.8 426.2,286.9 415.5,320.7 461.7,352.0 442.6,384.7 392.7,359.7 368.4,385.6 396.5,433.7 365.1,454.9 331.0,410.7 297.9,423.5 302.3,479.1 264.8,484.5 253.2,430.0 217.9,427.1 197.7,479.1 161.5,467.7 174.8,413.6 144.2,395.6 103.5,433.7 75.8,407.8 111.3,364.7 91.5,335.3 38.3,352.0 24.6,316.6 75.3,293.2 70.2,258.1 15.0,250.0 18.1,212.2 73.8,213.1 84.5,179.3 38.3,148.0 57.4,115.3 107.3,140.3 131.6,114.4 103.5,66.3 134.9,45.1 169.0,89.3 202.1,76.5 197.7,20.9 235.2,15.5 246.8,70.0 282.1,72.9 302.3,20.9 338.5,32.3 325.2,86.4 355.8,104.4 396.5,66.3 424.2,92.2 388.7,135.3 408.5,164.7 461.7,148.0 475.4,183.4 424.7,206.8 429.8,241.9"/><circle cx="250" cy="250" r="163" fill="#0d0c0b" stroke="#ee6018" stroke-width="8"/></g></svg></span>
+      <span class="word">Replika&nbsp;Lab</span>
+    </a>
+    <ul>
+      <li><a href="#services">Услуги</a></li>
+      <li><a href="#materials">Материалы</a></li>
+      <li><a href="#cases">Кейсы</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn-accent" href="#contact">Узнать цену</a>
+    </div>
+  </div>
+</header>
+
+<a class="skip" href="#services">Перейти к содержимому</a>
+<main id="content">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <video id="heroVideo" autoplay muted loop playsinline preload="none" poster="assets/hero-poster.jpg" aria-hidden="true" tabindex="-1"></video>
+  <div class="grid-bg"></div>
+  <div class="veil"></div>
+  <div class="wrap hero-inner">
+
+    <div class="hero-eyebrow mono"><i></i>3D SCAN · DESIGN · PRINT</div>
+
+    <h1><em>Восстановим</em> деталь, которой больше нет в продаже</h1>
+    <p class="lead">Студия 3D-сканирования, инженерного моделирования и FDM-печати. Восстанавливаем геометрию по образцу, доводим её до чертежа и отдаём готовую деталь в руки.</p>
+
+    <div class="hero-cta">
+      <a class="btn btn-accent btn-lg" href="#contact">Прислать деталь на расчёт</a>
+      <a class="hero-link" href="#cases">Смотреть работы</a>
+    </div>
+
+    <div class="scroll-note mono" aria-hidden="true">
+      Листайте
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section id="services">
+  <div class="wrap">
+    <details class="spoiler rv" open>
+      <summary>
+        <span class="s-eyebrow mono">Что мы делаем</span>
+      </summary>
+      <div class="spoiler-body">
+        <h2>Три этапа одной работы</h2>
+        <p class="lead">Каждое направление работает отдельно, но сильнее всего — вместе: скан даёт геометрию, модель делает её управляемой, печать превращает в физический объект.</p>
+    <div class="cards">
+      <!-- SCAN -->
+      <article class="card">
+        <svg class="ico" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <rect x="4" y="10" width="26" height="15" rx="3" stroke="#ee6018" stroke-width="2"/>
+          <circle cx="11" cy="17.5" r="2.6" fill="#3b6bff"/><circle cx="18" cy="17.5" r="2.6" fill="#3b6bff"/><circle cx="25" cy="17.5" r="2.6" fill="#3b6bff"/>
+          <path d="M12 26 L40 45 M19 26 L44 45 M26 26 L48 45" stroke="#3b6bff" stroke-width="1.2" opacity=".8"/>
+          <path d="M36 40 h20 v14 h-20z" stroke="#8a8380" stroke-width="2"/>
+          <path d="M36 40 l6-6 h20 l-6 6 M56 40 l6-6 v14 l-6 6" stroke="#8a8380" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <span class="tag">Реверс-инжиниринг</span>
+        <h3>3D-сканирование</h3>
+        <div class="price"><b>от 1000 ₽</b><span>за деталь</span></div>
+        <p>Оцифровываем детали, узлы и оснастку структурированным синим светом. На выходе — чистая полигональная сетка, пригодная для измерений и построения CAD.</p>
+        <ul>
+          <li>Точность до 0.05 мм, разрешение до 0.1 мм</li>
+          <li>Объекты от 10 мм до 2 м, поворотный стол и ручной режим</li>
+          <li>Форматы STL, OBJ, PLY, облако точек</li>
+          <li>Контроль геометрии и отчёт отклонений от чертежа</li>
+        </ul>
+      </article>
+
+      <!-- CAD -->
+      <article class="card">
+        <svg class="ico" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <path d="M14 20 l18-10 18 10 v22 l-18 10 -18-10z" stroke="#ee6018" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M14 20 l18 10 18-10 M32 30 v22" stroke="#8a8380" stroke-width="1.6"/>
+          <circle cx="32" cy="10" r="3" fill="#ee6018"/><circle cx="14" cy="42" r="3" fill="#ee6018"/><circle cx="50" cy="42" r="3" fill="#ee6018"/>
+          <path d="M6 54 h52" stroke="#3b6bff" stroke-width="1.2" stroke-dasharray="4 3"/>
+        </svg>
+        <span class="tag">CAD · КД</span>
+        <h3>3D-моделирование и проектирование</h3>
+        <div class="price"><b>от 500 ₽</b><span>за час работы</span></div>
+        <p>Строим параметрическую твердотельную модель — по скану, чертежу или эскизу на салфетке. Модель редактируется, а не «замораживается» в сетке.</p>
+        <ul>
+          <li>Параметрика: SolidWorks, Fusion 360, Blender</li>
+          <li>Восстановление геометрии по сканам, снятые размеры</li>
+          <li>Доработка под FDM: допуски, фаски, толщины стенок</li>
+          <li>Чертежи, спецификации, STEP для производства</li>
+        </ul>
+      </article>
+
+      <!-- PRINT -->
+      <article class="card">
+        <svg class="ico" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <rect x="8" y="8" width="48" height="40" rx="3" stroke="#8a8380" stroke-width="2"/>
+          <path d="M8 18 h48" stroke="#8a8380" stroke-width="1.4"/>
+          <rect x="26" y="18" width="12" height="8" rx="2" fill="#ee6018"/>
+          <path d="M32 26 v6" stroke="#ee6018" stroke-width="2"/>
+          <path d="M22 42 h20 v-8 h-20z" stroke="#ee6018" stroke-width="2"/>
+          <path d="M22 38 h20 M22 34.5 h20" stroke="#ee6018" stroke-width="1" opacity=".6"/>
+          <path d="M14 48 h36" stroke="#8a8380" stroke-width="2"/>
+          <path d="M18 56 h28" stroke="#3b6bff" stroke-width="1.2" stroke-dasharray="4 3"/>
+        </svg>
+        <span class="tag">FDM</span>
+        <h3>3D-печать FDM</h3>
+        <div class="price"><b>от 500 ₽</b><span>за деталь</span></div>
+        <p>Печатаем функциональные детали: корпуса, кронштейны, оснастку, запчасти, которых больше не купить. Инженерные пластики, а не только «выставочный» PLA.</p>
+        <ul>
+          <li>Область до 350 × 350 × 400 мм, слой 0.1–0.3 мм</li>
+          <li>PLA, PETG, ABS, ASA, нейлон, углеволокно</li>
+          <li>Мелкие серии до нескольких сотен деталей</li>
+          <li>Постобработка: шлифовка, покраска, вставки, сборка</li>
+        </ul>
+      </article>
+    </div>
+        <p class="price-note">Цены ориентировочные — точная смета зависит от размера детали, сложности геометрии, материала и тиража. Считаем после короткого брифа, консультация бесплатна.</p>
+      </div>
+    </details>
+  </div>
+  </section>
+
+<!-- ============ MATERIALS ============ -->
+<section id="materials">
+  <div class="wrap">
+    <details class="spoiler rv">
+      <summary>
+        <span class="s-eyebrow mono">Из чего печатаем</span>
+      </summary>
+      <div class="spoiler-body">
+        <h2>Пластик под задачу</h2>
+        <p class="lead">Подбираем не по цвету, а по нагрузке, температуре и среде эксплуатации.</p>
+    <div class="mats">
+      <div class="mat"><b>PLA</b><p>Макеты, выставочные модели, геометрически сложные формы. Максимальная точность, минимальная цена.</p></div>
+      <div class="mat"><b>PETG</b><p>Универсальный рабочий пластик: влагостойкий, вязкий, держит удар. Корпуса и кронштейны.</p></div>
+      <div class="mat"><b>ABS / ASA</b><p>Термостойкость и UV-стойкость. Детали для авто, улицы и подкапотного пространства.</p></div>
+      <div class="mat"><b>PA / CF</b><p>Нейлон и композиты с углеволокном. Шестерни, оснастка, силовые узлы, износостойкость.</p></div>
+    </div>
+      </div>
+    </details>
+  </div>
+  </section>
+
+<!-- ============ CASES ============ -->
+<section id="cases">
+  <div class="wrap">
+    <details class="spoiler rv" open>
+      <summary>
+        <span class="s-eyebrow mono">С чем приходят</span>
+      </summary>
+      <div class="spoiler-body">
+        <h2>С чем к нам приходят</h2>
+        <p class="lead">Три истории, которые повторяются чаще остальных.</p>
+    <div class="cases">
+
+      <article class="case">
+        <div class="vis"><picture><source srcset="assets/case-part.webp" type="image/webp"><img src="assets/case-part.jpg" alt="3D-сканирование детали и печать замены" loading="lazy" decoding="async"></picture></div>
+        <div class="body">
+          <h3>Запчасть, которой нет в продаже</h3>
+          <p>Снятый с производства корпус, редуктор или крепление. Сканируем уцелевший образец, восстанавливаем модель и печатаем замену — вплоть до мелкой серии.</p>
+          <div class="meta"><span>Скан</span><span>CAD</span><span>PETG</span></div>
+        </div>
+      </article>
+
+      <article class="case">
+        <div class="vis"><picture><source srcset="assets/case-sketch.webp" type="image/webp"><img src="assets/case-sketch.jpg" alt="От эскиза к 3D-модели и чертежу" loading="lazy" decoding="async"></picture></div>
+        <div class="body">
+          <h3>Идея без чертежа</h3>
+          <p>Есть задача и эскиз, нет конструкторской документации. Проектируем деталь с нуля, проверяем на прототипе и отдаём готовый комплект STEP + чертежи.</p>
+          <div class="meta"><span>CAD</span><span>Прототип</span><span>КД</span></div>
+        </div>
+      </article>
+
+      <article class="case">
+        <div class="vis"><picture><source srcset="assets/case-series.webp" type="image/webp"><img src="assets/case-series.jpg" alt="Мелкая серия корпусов и печатная оснастка" loading="lazy" decoding="async"></picture></div>
+        <div class="body">
+          <h3>Мелкая серия и оснастка</h3>
+          <p>Кондукторы, шаблоны, посадочные места, партии корпусов. Считаем экономику: где FDM выгоднее фрезеровки и литья, а где — нет.</p>
+          <div class="meta"><span>Серия</span><span>ASA</span><span>Сборка</span></div>
+        </div>
+      </article>
+
+    </div>
+      </div>
+    </details>
+  </div>
+  </section>
+
+
+<!-- ============ FAQ ============ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="rv">
+      <div class="eyebrow mono">Вопросы</div>
+      <h2>Коротко о главном</h2>
+    </div>
+    <div class="faq rv">
+      <details open><summary>Нужен ли образец детали для работы?</summary><p>Не обязательно. Если деталь есть — сканируем и получаем точную геометрию. Если нет — строим модель по чертежу, фотографиям с размерами или описанию задачи. Второй путь дольше, но рабочий.</p></details>
+      <details><summary>Сколько стоит проект?</summary><p>Стоимость складывается из трёх частей: сканирование (зависит от размера и сложности объекта), моделирование (по часам инженера) и печать (масса пластика + время принтера). Точную смету называем после короткого брифа и фото детали.</p></details>
+      <details><summary>Какие сроки?</summary><p>Прототип небольшой детали — от 24 часов. Полный цикл «скан → модель → печать» для узла средней сложности — обычно 3–7 рабочих дней. Мелкая серия считается отдельно.</p></details>
+      <details><summary>Выдержит ли FDM-деталь нагрузку?</summary><p>Да, если материал и режим подобраны под задачу. Мы учитываем направление слоёв, толщину стенок и заполнение, при необходимости ставим металлические втулки и резьбовые вставки. Для критичных узлов честно скажем, если FDM не подходит.</p></details>
+      <details><summary>В каком виде вы отдаёте файлы?</summary><p>Сетки — STL, OBJ, PLY. Параметрические модели — STEP, а также нативные форматы SolidWorks и Fusion 360. По запросу готовим чертежи в PDF и DWG.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA / CONTACT ============ -->
+<section id="contact">
+  <div class="wrap">
+    <div class="rv" style="margin-bottom:56px">
+      <div class="eyebrow mono">Контакты</div>
+      <h2>Пришлите фото детали</h2>
+      <p class="lead">Пары слов о задаче достаточно — вернёмся со сметой, сроком и предложением по материалу. Консультация бесплатна. Забрать готовую деталь можно в мастерской или заказать доставку курьером.</p>
+    </div>
+
+    <div class="contacts rv">
+      <div class="contact contact-plain">
+        <span class="ci">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11Z" stroke="currentColor" stroke-width="1.6"/>
+            <circle cx="12" cy="10" r="2.6" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+        </span>
+        <span class="ct"><span class="l">Мастерская</span><span class="v">Липецк, ул. Филипченко, 9/3</span><span class="note">Самовывоз или доставка курьером</span></span>
+      </div>
+      <a class="contact" href="https://max.ru/u/f9LHodD0cOJMLLGiiSWAIQgnhMT7gvxFevJloUhMh47sB8PLk9-ZECNbJBQ" target="_blank" rel="noopener">
+        <span class="ci ci-max"></span>
+        <span class="ct"><span class="l">MAX</span><span class="v">Написать в MAX</span><span class="note">Отвечаем в рабочий день</span></span>
+      </a>
+      <a class="contact" href="https://t.me/replika_lab" target="_blank" rel="noopener">
+        <span class="ci">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.7 3.4 2.9 10.6c-1.1.4-1.1 1.1-.2 1.4l4.7 1.5 1.8 5.5c.2.6.4.8.8.8.4 0 .6-.2.9-.5l2.2-2.2 4.6 3.4c.8.5 1.4.2 1.6-.8l3-14c.3-1.2-.5-1.8-1.6-1.3ZM8.6 13.9l9.9-6.2c.4-.3.8-.1.5.2l-8.5 7.7-.3 3.2-1.6-4.9Z"/></svg>
+        </span>
+        <span class="ct"><span class="l">Telegram</span><span class="v">Написать в Telegram</span><span class="note">Отвечаем в рабочий день</span></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="fcols">
+      <div class="fbrand">
+        <a class="brand" href="#top">
+          <span class="mark"><svg viewBox="0 0 500 500" aria-hidden="true"><circle cx="250" cy="250" r="248" fill="#0d0c0b"/><g class="gear-spin"><polygon fill="#c1621f" stroke="#ee6018" stroke-width="8" stroke-linejoin="round" points="485.0,250.0 481.9,287.8 426.2,286.9 415.5,320.7 461.7,352.0 442.6,384.7 392.7,359.7 368.4,385.6 396.5,433.7 365.1,454.9 331.0,410.7 297.9,423.5 302.3,479.1 264.8,484.5 253.2,430.0 217.9,427.1 197.7,479.1 161.5,467.7 174.8,413.6 144.2,395.6 103.5,433.7 75.8,407.8 111.3,364.7 91.5,335.3 38.3,352.0 24.6,316.6 75.3,293.2 70.2,258.1 15.0,250.0 18.1,212.2 73.8,213.1 84.5,179.3 38.3,148.0 57.4,115.3 107.3,140.3 131.6,114.4 103.5,66.3 134.9,45.1 169.0,89.3 202.1,76.5 197.7,20.9 235.2,15.5 246.8,70.0 282.1,72.9 302.3,20.9 338.5,32.3 325.2,86.4 355.8,104.4 396.5,66.3 424.2,92.2 388.7,135.3 408.5,164.7 461.7,148.0 475.4,183.4 424.7,206.8 429.8,241.9"/><circle cx="250" cy="250" r="163" fill="#0d0c0b" stroke="#ee6018" stroke-width="8"/></g></svg></span>
+          <span class="word">Replika&nbsp;Lab</span>
+        </a>
+        <p>Студия 3D-сканирования, инженерного моделирования и FDM-печати. 3D SCAN · DESIGN · PRINT.</p>
+      </div>
+      <div><h4>Услуги</h4><ul><li><a href="#services">3D-сканирование</a></li><li><a href="#services">Моделирование</a></li><li><a href="#services">Печать FDM</a></li><li><a href="#materials">Материалы</a></li></ul></div>
+      <div><h4>Студия</h4><ul><li><a href="#materials">Материалы</a></li><li><a href="#cases">Кейсы</a></li><li><a href="#faq">FAQ</a></li></ul></div>
+      <div><h4>Контакты</h4><ul><li>Липецк, ул. Филипченко, 9/3</li><li><a href="https://max.ru/u/f9LHodD0cOJMLLGiiSWAIQgnhMT7gvxFevJloUhMh47sB8PLk9-ZECNbJBQ" target="_blank" rel="noopener">MAX</a></li><li><a href="https://t.me/replika_lab">Telegram</a></li></ul></div>
+    </div>
+    <div class="fbot mono">
+      <span>© 2026 Replika Lab</span>
+    </div>
+  </div>
+</footer>
+
+<button class="totop" id="totop" aria-label="Наверх" title="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square">
+    <path d="M12 19V5M12 5l-7 7M12 5l7 7"/>
+  </svg>
+</button>
+
+<script>
+// видео: облегчённая версия на телефонах, полная — на широких экранах.
+// при экономии трафика и на медленной связи остаётся статичный кадр
+(function(){
+  const v=document.getElementById('heroVideo');
+  if(!v) return;
+  const c=navigator.connection||{};
+  if(c.saveData||/(^|-)2g/.test(c.effectiveType||'')) return;
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  v.src=window.matchMedia('(min-width:768px)').matches
+      ? 'assets/hero.mp4'
+      : 'assets/hero-mobile.mp4';
+  v.load();
+})();
+
+// back to top
+const topBtn=document.getElementById('totop');
+const toggleTop=()=>topBtn.classList.toggle('show',window.scrollY>window.innerHeight*0.6);
+toggleTop();addEventListener('scroll',toggleTop,{passive:true});
+topBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+// sticky nav + кнопка в шапке появляется после первого экрана
+const hdr=document.getElementById('hdr');
+const navActions=document.querySelector('.nav-actions');
+const onScroll=()=>{
+  hdr.classList.toggle('solid',window.scrollY>40);
+  navActions.classList.toggle('show',window.scrollY>window.innerHeight*0.75);
+};
+onScroll();addEventListener('scroll',onScroll,{passive:true});
+
+
+// переход по меню раскрывает спойлер целевой секции
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',()=>{
+  const sec=document.querySelector(a.getAttribute('href'));
+  const d=sec&&sec.querySelector('details.spoiler');
+  if(d) d.open=true;
+}));
+
+// подсветка активного пункта меню
+const navLinks=[...document.querySelectorAll('.nav ul a')];
+const targets=navLinks.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const spy=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(!e.isIntersecting) return;
+    navLinks.forEach(l=>l.classList.toggle('active', l.getAttribute('href')==='#'+e.target.id));
+  });
+},{rootMargin:'-45% 0px -50% 0px'});
+targets.forEach(t=>spy.observe(t));
+
+// reveal on scroll
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
+}),{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+document.querySelectorAll('.rv').forEach((el,i)=>{el.style.transitionDelay=(i%3*70)+'ms';io.observe(el);});
+</script>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ProfessionalService","name":"Replika Lab",
+"url":"https://replikalab.ru/","image":"https://replikalab.ru/assets/og-cover.jpg",
+"description":"Студия 3D-сканирования, инженерного моделирования и FDM-печати",
+"email":"info@replikalab.ru","priceRange":"$$",
+"address":{"@type":"PostalAddress","addressLocality":"Липецк","streetAddress":"ул. Филипченко, 9/3","addressCountry":"RU"},
+"areaServed":{"@type":"City","name":"Липецк"},
+"sameAs":["https://t.me/replika_lab"],
+"makesOffer":[
+ {"@type":"Offer","itemOffered":{"@type":"Service","name":"3D-сканирование деталей"}},
+ {"@type":"Offer","itemOffered":{"@type":"Service","name":"3D-моделирование и проектирование"}},
+ {"@type":"Offer","itemOffered":{"@type":"Service","name":"3D-печать FDM"}}]}
+</script>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Нужен ли образец детали для работы?", "acceptedAnswer": {"@type": "Answer", "text": "Не обязательно. Если деталь есть — сканируем и получаем точную геометрию. Если нет — строим модель по чертежу, фотографиям с размерами или описанию задачи. Второй путь дольше, но рабочий."}}, {"@type": "Question", "name": "Сколько стоит проект?", "acceptedAnswer": {"@type": "Answer", "text": "Стоимость складывается из трёх частей: сканирование (зависит от размера и сложности объекта), моделирование (по часам инженера) и печать (масса пластика + время принтера). Точную смету называем после короткого брифа и фото детали."}}, {"@type": "Question", "name": "Какие сроки?", "acceptedAnswer": {"@type": "Answer", "text": "Прототип небольшой детали — от 24 часов. Полный цикл «скан → модель → печать» для узла средней сложности — обычно 3–7 рабочих дней. Мелкая серия считается отдельно."}}, {"@type": "Question", "name": "Выдержит ли FDM-деталь нагрузку?", "acceptedAnswer": {"@type": "Answer", "text": "Да, если материал и режим подобраны под задачу. Мы учитываем направление слоёв, толщину стенок и заполнение, при необходимости ставим металлические втулки и резьбовые вставки. Для критичных узлов честно скажем, если FDM не подходит."}}, {"@type": "Question", "name": "В каком виде вы отдаёте файлы?", "acceptedAnswer": {"@type": "Answer", "text": "Сетки — STL, OBJ, PLY. Параметрические модели — STEP, а также нативные форматы SolidWorks и Fusion 360. По запросу готовим чертежи в PDF и DWG."}}]}
+</script>
+</body>
+</html>
